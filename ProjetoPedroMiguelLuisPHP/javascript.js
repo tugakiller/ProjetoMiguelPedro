@@ -1,6 +1,7 @@
 var contadorCartoes = 0;
 var numerosLancados = [];
 
+/*Bingo */
 function CriarCartaoBingo()
 {
     InstatiateCartao();
@@ -209,3 +210,4 @@ function VerifyWinner()
                 
     });
 }
+/*Fim Bingo*/
