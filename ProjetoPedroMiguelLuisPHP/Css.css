@@ -108,3 +108,42 @@ border: 1px solid #FFD32E;
 box-shadow: 0 0 10px rgba(255, 255, 0, 0.1);
 outline: none;
 }
+
+
+/* Inicio Tabela*/
+table.topazCells {
+border: 4px solid #ff8800;
+background-color: yellow;
+width: 400px;
+text-align: center;
+border-collapse: collapse;
+}
+table.topazCells td, table.topazCells th {
+border: 1px solid #ff8800;
+padding: 4px 7px;
+}
+table.topazCells tbody td {
+font-size: 13px;
+font-weight: bold;
+color: black;
+}
+table.topazCells tr:nth-child(even) {
+background: yellow;
+}
+table.topazCells td:nth-child(even) {
+background: yellow;
+}
+table.topazCells tfoot td {
+font-size: 13px;
+}
+table.topazCells tfoot .links {
+text-align: right;
+}
+table.topazCells tfoot .links a{
+display: inline-block;
+background: #FFFFFF;
+color: #A43152;
+padding: 2px 8px;
+border-radius: 5px;
+}
+/*fim tabela*/

@@ -9,14 +9,17 @@ function CriarCartaoBingo()
 
 function InstatiateCartao()
 {
+    //Criar o cartao
     contadorCartoes++;
     $( "#divTotal" ).append( "<div id='Divcartao" + contadorCartoes + "'></div> <br>");
+    $("#Divcartao" + contadorCartoes ).append('<table class="topazCells"><tbody><tr>');
     for (let index = 1; index < 28; index++) {
         if(index == 10 || index == 19 || index == 30)
         {
-            $("#Divcartao" + contadorCartoes ).append("<br>");
+            $("#Divcartao" + contadorCartoes + " > table > tbody").prepend("<tr>");
         }
-        $("#Divcartao" + contadorCartoes ).append("<label id='Label" + index +"_" + contadorCartoes + "'>-</label> &nbsp;");
+        $("#Divcartao" + contadorCartoes + " > table > tbody > tr").first().append("<td><label id='Label" + index +"_" + contadorCartoes + "'>-</label></td>");
+
     }
 
     /* Inicio Linha 1 do cartão */
@@ -171,10 +174,12 @@ function InstatiateCartao()
     
     /* Guardar o cartao na base de dados */
     var NumerosDoCartao = "";
-    $("#Divcartao" + contadorCartoes + " > label").each(function (index, element) {
+    $("#Divcartao" + contadorCartoes + " > table > tbody > tr > td > label").each(function (index, element) {
         NumerosDoCartao = NumerosDoCartao.concat($(element).text() + "_");
     });
-    $.post('handlerajax.php?serverlist=GuardarCartao&Numeros='+NumerosDoCartao+'', function(response){
+    var querystring = location.search.substring(1);
+    querystring = querystring.split("=");
+    $.post('handlerajax.php?serverlist=GuardarCartao&Numeros='+NumerosDoCartao+'&Serverid=' + querystring[1] + '', function(response){
     });
 }
 
@@ -214,8 +219,38 @@ function TirarNumero()
 
 function VerifyWinner()
 {
-    $("divTotal > div").each(function (index, element) {
-                
+    $("#divTotal > div").each(function (index, element) {
+        if(EVencedor(element) == 0)
+        {
+            alert("Ganhou a div " + element.id);
+        }
     });
+}
+function EVencedor(element) {
+    var contador = 0;
+    $("#" + element.id + " > table > tbody > tr > td > label").each(function (index2, element2) {
+        if (parseInt($(element2).text())) {
+            contador = 1;
+            return contador;
+        }
+    });
+    return contador;
+}
+
+function Cartoesexistentes(value)
+{
+    var arrayvalue = value.split("_");
+
+    //Criar o cartao
+    contadorCartoes++;
+    $( "#divTotal" ).append( "<div id='Divcartao" + contadorCartoes + "'></div> <br>");
+    $("#Divcartao" + contadorCartoes ).append('<table class="topazCells"><tbody><tr>');
+    for (let index = 1; index < 28; index++) {
+        if(index == 10 || index == 19 || index == 30)
+        {
+            $("#Divcartao" + contadorCartoes + " > table > tbody").prepend("<tr>");
+        }
+        $("#Divcartao" + contadorCartoes + " > table > tbody > tr").first().append("<td><label id='Label" + index +"_" + contadorCartoes + "'>" + arrayvalue[index-1] + "</label></td>");
+    }
 }
 /*Fim Bingo*/
