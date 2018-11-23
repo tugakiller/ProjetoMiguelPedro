@@ -167,7 +167,15 @@ function InstatiateCartao()
         }
         
     }
-        /* Fim Linha 3 do cartão */
+    /* Fim Linha 3 do cartão */
+    
+    /* Guardar o cartao na base de dados */
+    var NumerosDoCartao = "";
+    $("#Divcartao" + contadorCartoes + " > label").each(function (index, element) {
+        NumerosDoCartao = NumerosDoCartao.concat($(element).text() + "_");
+    });
+    $.post('handlerajax.php?serverlist=GuardarCartao&Numeros='+NumerosDoCartao+'', function(response){
+    });
 }
 
 function AddNumRandomToLabel(LabelToPutValue, FirstVerificationLabel, SecondVerificationLabel, RandomNumber)

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+</head>
+<body>
+
+
+    <div id="result"></div>
+    <button onclick="passar_info()">Click me</button>
+   
+    <script>
+        var options=["2_c","3_c","4_c","5_c","6_c","7_c", "8_c", "9_c", "10_c", "J_c", "Q_c", "K_c", "A_c", "2_p","3_p","4_p","5_p","6_p","7_p", "8_p", "9_p", "10_p", "J_p", "Q_p", "K_p", "A_p","2_o","3_o","4_o","5_o","6_o","7_o", "8_o", "9_o", "10_o", "J_o", "Q_o", "K_o", "A_o","2_t","3_t","4_t","5_t","6_t","7_t", "8_t", "9_t", "10_t", "J_t", "Q_t", "K_t", "A_t"];
+        var contador=0;
+        var verificador=[];
+        debugger;
+        var aspas='"';
+        while (contador!=5)
+        {
+            var rand = options[Math.floor(Math.random() * options.length)];
+            if(!verificador.includes(rand)||verificador.length==0)
+            {
+                document.write("<button id='carta' onclick='passar_info("+aspas+rand+aspas+")'>"+ rand +" </button>");
+                verificador.push(rand);
+                contador=contador+1;
+            }
+        }
+      
+        function passar_info(valor) {
+           
+            var full_url = document.URL; // Get current url
+            var url_array = full_url.split('?id=') // Split the string into an array with / as separator
+            var serverid = url_array[url_array.length-1];  // Get the last part of the array (-1)   
+            //alert( last_segment ); // Alert last segment
+
+            debugger;
+            $.ajax({
+                type: 'POST',
+                url: 'page2.php',
+                data: { valor_q_passa: valor, servidorid_q_passa: serverid},
+                success: function(response) {
+                    $('#result').html(response);
+                }
+            });
+        }
+      
+
+    </script>
+</body>
+</html>
