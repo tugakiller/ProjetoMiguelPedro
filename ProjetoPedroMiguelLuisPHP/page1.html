@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* Inicio Tabela*/
+        table.topazCells {
+        border: 4px solid #ff8800;
+        background-color: yellow;
+        width: 400px;
+        text-align: center;
+        border-collapse: collapse;
+        }
+        table.topazCells td, table.topazCells th {
+        border: 1px solid #ff8800;
+        padding: 4px 7px;
+        }
+        table.topazCells tbody td {
+        font-size: 13px;
+        font-weight: bold;
+        color: black;
+        }
+        table.topazCells tr:nth-child(even) {
+        background: yellow;
+        }
+        table.topazCells td:nth-child(even) {
+        background: yellow;
+        }
+        table.topazCells tfoot td {
+        font-size: 13px;
+        }
+        table.topazCells tfoot .links {
+        text-align: right;
+        }
+        table.topazCells tfoot .links a{
+        display: inline-block;
+        background: #FFFFFF;
+        color: #A43152;
+        padding: 2px 8px;
+        border-radius: 5px;
+        }
+        /*fim tabela*/
+    </style>
+</head>
+<body>
+    <!--Inicio da criação da tabela-->
+    <table class="topazCells">
+        <tbody>
+            <tr>
+                <td>cell1_1</td>
+                <td>cell2_1</td>
+                <td>cell3_1</td>
+                <td>cell4_1</td>
+                <td>cell5_1</td>
+                <td>cell6_1</td>
+                <td>cell7_1</td>
+                <td>cell8_1</td>
+                <td>cell9_1</td>
+            </tr>
+            <tr>
+                <td>cell1_2</td>
+                <td>cell2_2</td>
+                <td>cell3_2</td>
+                <td>cell4_2</td>
+                <td>cell5_2</td>
+                <td>cell6_2</td>
+                <td>cell7_2</td>
+                <td>cell8_1</td>
+                <td>cell9_1</td>
+            </tr>
+            <tr>
+                <td>cell1_3</td>
+                <td>cell2_3</td>
+                <td>cell3_3</td>
+                <td>cell4_3</td>
+                <td>cell5_3</td>
+                <td>cell6_3</td>
+                <td>cell7_3</td>
+                <td>cell8_1</td>
+                <td>cell9_1</td>
+            </tr>
+        </tbody>
+    </table>
+    <!--Fim da criação da tabela-->
+
+    <!--Inicio da criação da roleta-->
+    <input type="button" value="spin" style="float:left;" id='spin' />
+    <canvas id="canvas" width="500" height="500"></canvas>
+    
+    <script>
+        var options = ["1", "20", "2", "19", "3", "18", "4", "17", "5", "16", "6", "15", "7", "14", "8", "13", "9", "12","10","11"];
+
+        var startAngle = 0;
+        var arc = Math.PI / (options.length / 2);
+        var spinTimeout = null;
+
+        var spinArcStart = 10;
+        var spinTime = 0;
+        var spinTimeTotal = 0;
+
+        var ctx;
+
+        document.getElementById("spin").addEventListener("click", spin);
+
+        function byte2Hex(n) {
+        var nybHexString = "0123456789ABCDEF";
+        return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
+        }
+
+        function RGB2Color(r,g,b) {
+            return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
+            
+        }
+
+        function getColor(item, maxitem) {
+        var phase = 0;
+        var center = 128;
+        var width = 127;
+        var frequency = Math.PI*2/maxitem;
+        
+        red   = Math.sin(frequency*item+2+phase) * width + center;
+        green = Math.sin(frequency*item+0+phase) * width + center;
+        blue  = Math.sin(frequency*item+4+phase) * width + center;
+        
+        return RGB2Color(red,green,blue);
+        }
+
+        function drawRouletteWheel() {
+        var canvas = document.getElementById("canvas");
+        if (canvas.getContext) {
+            var outsideRadius = 200;
+            var textRadius = 160;
+            var insideRadius = 125;
+
+            ctx = canvas.getContext("2d");
+            ctx.clearRect(0,0,500,500);
+
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+
+            ctx.font = 'bold 12px Helvetica, Arial';
+
+            for(var i = 0; i < options.length; i++) {
+            var angle = startAngle + i * arc;
+            //ctx.fillStyle = colors[i];
+            ctx.fillStyle = getColor(i, options.length);
+
+            ctx.beginPath();
+            ctx.arc(250, 250, outsideRadius, angle, angle + arc, false);
+            ctx.arc(250, 250, insideRadius, angle + arc, angle, true);
+            ctx.stroke();
+            ctx.fill();
+
+            ctx.save();
+            ctx.shadowOffsetX = -1;
+            ctx.shadowOffsetY = -1;
+            ctx.shadowBlur    = 0;
+            ctx.shadowColor   = "rgb(220,220,220)";
+            ctx.fillStyle = "black";
+            ctx.translate(250 + Math.cos(angle + arc / 2) * textRadius, 
+                            250 + Math.sin(angle + arc / 2) * textRadius);
+            ctx.rotate(angle + arc / 2 + Math.PI / 2);
+            var text = options[i];
+            ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+            ctx.restore();
+            } 
+
+            //Arrow
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.moveTo(250 - 4, 250 - (outsideRadius + 5));
+            ctx.lineTo(250 + 4, 250 - (outsideRadius + 5));
+            ctx.lineTo(250 + 4, 250 - (outsideRadius - 5));
+            ctx.lineTo(250 + 9, 250 - (outsideRadius - 5));
+            ctx.lineTo(250 + 0, 250 - (outsideRadius - 13));
+            ctx.lineTo(250 - 9, 250 - (outsideRadius - 5));
+            ctx.lineTo(250 - 4, 250 - (outsideRadius - 5));
+            ctx.lineTo(250 - 4, 250 - (outsideRadius + 5));
+            ctx.fill();
+        }
+        }
+
+        function spin() {
+        spinAngleStart = Math.random() * 10 + 10;
+        spinTime = 0;
+        spinTimeTotal = Math.random() * 3 + 4 * 1000;
+        rotateWheel();
+        }
+
+        function rotateWheel() {
+        spinTime += 30;
+        if(spinTime >= spinTimeTotal) {
+            stopRotateWheel();
+            return;
+        }
+        var spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+        startAngle += (spinAngle * Math.PI / 180);
+        drawRouletteWheel();
+        spinTimeout = setTimeout('rotateWheel()', 30);
+        }
+
+        function stopRotateWheel() {
+        clearTimeout(spinTimeout);
+        var degrees = startAngle * 180 / Math.PI + 90;
+        var arcd = arc * 180 / Math.PI;
+        var index = Math.floor((360 - degrees % 360) / arcd);
+        ctx.save();
+        ctx.font = 'bold 30px Helvetica, Arial';
+        debugger;
+        var text = options[index]
+        //Marcador esta aqui a variavel com o valor
+        ctx.fillText(text, 250 - ctx.measureText(text).width / 2, 250 + 10);
+        ctx.restore();
+        }
+
+        function easeOut(t, b, c, d) {
+        var ts = (t/=d)*t;
+        var tc = ts*t;
+        return b+c*(tc + -3*ts + 3*t);
+        }
+
+        drawRouletteWheel();
+    </script>
+    <!--Fim da roleta-->
+
+
+</body>
+</html>
