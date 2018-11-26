@@ -19,21 +19,20 @@
     <div id="divTotal"></div>
     <div id="divNumerosSaidos"></div>
     <?php 
-        include("Db.php");
-        $data = $_SERVER['QUERY_STRING'];    
-        $whatIWant = substr($data, strpos($data, "=") + 1);
+    include("Db.php");
+    $data = $_SERVER['QUERY_STRING'];
+    $whatIWant = substr($data, strpos($data, "=") + 1);
 
-        $query = QueryCreator("SELECT * FROM bingo WHERE id_servidor = ".$whatIWant. "", $con); 
+    $query = QueryCreator("SELECT * FROM bingo WHERE id_servidor = " . $whatIWant . "", $con);
 
-        if ($query->num_rows > 0) {
+    if ($query->num_rows > 0) {
             // output data of each row
-            while($row = $query->fetch_assoc())
-            {
-                echo '<script type="text/javascript">',
-                        'Cartoesexistentes("'.$row["Numeros"].'");',
-                      '</script>';   
-            }
+        while ($row = $query->fetch_assoc()) {
+            echo '<script type="text/javascript">',
+                'Cartoesexistentes("' . $row["Numeros"] . '");',
+                '</script>';
         }
+    }
     ?>
 </body>
 </html>

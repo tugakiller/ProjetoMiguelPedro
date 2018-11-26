@@ -1,5 +1,25 @@
 var contadorCartoes = 0;
 var numerosLancados = [];
+var EATirar = '1';
+
+setInterval(function() {
+    var querystring = location.search.substring(1);
+    querystring = querystring.split("=");
+    $.post('handlerajax.php?serverlist=QuemTira&Serverid=' + querystring[1] + '&idpessoa=' + '1' + '', function(response){
+        EATirar = response;
+    });
+    if(EATirar == '0')
+    {
+        TirarNumero();
+    }
+    var querystring = location.search.substring(1);
+    querystring = querystring.split("=");
+    $.post('handlerajax.php?serverlist=NumerosTiradosBD&Serverid=' + querystring[1] + '', function (response) {               
+        $.each(JSON.parse(response), function( i, l ){
+            TirarNumero(l);
+        });
+    });
+}, 10 * 100);
 
 /*Bingo */
 function CriarCartaoBingo()
@@ -193,14 +213,24 @@ function AddNumRandomToLabel(LabelToPutValue, FirstVerificationLabel, SecondVeri
     return 0;
 }
 
-function TirarNumero()
+
+function TirarNumero(chamado=0)
 {
     var jaentrou = 0;
     while (jaentrou == 0) {
-        var numerorandom = Math.floor((Math.random() * 90) + 1);
+        if(chamado == 0)
+        {
+            var numerorandom = Math.floor((Math.random() * 90) + 1);
+        }
+        else
+        {
+            var numerorandom = chamado;
+            jaentrou = 1;
+        }
         if(jQuery.inArray(numerorandom, numerosLancados) == -1)
         {
             jaentrou = 1;
+            
             numerosLancados.push(numerorandom);
             $("label").each(function (index, element) {
                 // element == this
@@ -213,7 +243,13 @@ function TirarNumero()
             $("#divNumerosSaidos").append(numerorandom + " &nbsp;");
         }        
     }
-
+    if(chamado == 0)
+    {
+        var querystring = location.search.substring(1);
+        querystring = querystring.split("=");
+        $.post('handlerajax.php?serverlist=GuardarNumero&Numero='+numerorandom+'&Serverid=' + querystring[1] + '', function(response){
+        });
+    }
     VerifyWinner();
 }
 
