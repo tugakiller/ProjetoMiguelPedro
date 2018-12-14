@@ -1,25 +1,70 @@
 var contadorCartoes = 0;
 var numerosLancados = [];
 var EATirar = '1';
-
 setInterval(function() {
     var querystring = location.search.substring(1);
     querystring = querystring.split("=");
-    $.post('handlerajax.php?serverlist=QuemTira&Serverid=' + querystring[1] + '&idpessoa=' + '1' + '', function(response){
+
+    if(!$("#CriarCartaoBtn").is(':disabled'))
+    {
+        $.post('handlerajax.php?serverlist=CartoesExistentes&Serverid=' + querystring[1] + '', function(response){
+            $("#divTotal > *").remove();
+            $.each(JSON.parse(response), function( i, l ){
+                Cartoesexistentes(l[0], l[1]);
+            });
+        }); 
+    }
+
+    $.post('handlerajax.php?serverlist=QuemTira&Serverid=' + querystring[1] + '&idpessoa=' + sessionStorage.getItem("idpessoa") + '', function(response){
         EATirar = response;
     });
+
+    $.post('handlerajax.php?serverlist=FazerRefresh&idpessoa=' + sessionStorage.getItem("idpessoa") + '', function(response){
+        if(response == '1')
+        {
+            location.reload();
+        }
+    });
+
     if(EATirar == '0')
     {
         TirarNumero();
     }
+    else{
+        var querystring = location.search.substring(1);
+        querystring = querystring.split("=");
+        $.post('handlerajax.php?serverlist=NumerosTiradosBD&Serverid=' + querystring[1] + '', function (response) {               
+            $.each(JSON.parse(response), function( i, l ){
+                TirarNumero(l);
+            });
+        });   
+    }
+}, 10 * 100);
+
+function PodeComprar()
+{
+    setTimeout(function() {
+        var querystring = location.search.substring(1);
+        querystring = querystring.split("=");
+        $.post('handlerajax.php?serverlist=ComecaJogo&Serverid=' + querystring[1] + '', function(response){
+           // alert("vai começar");
+            $("#CriarCartaoBtn").prop("disabled", true);
+        });
+    }, 10000);
     var querystring = location.search.substring(1);
     querystring = querystring.split("=");
-    $.post('handlerajax.php?serverlist=NumerosTiradosBD&Serverid=' + querystring[1] + '', function (response) {               
-        $.each(JSON.parse(response), function( i, l ){
-            TirarNumero(l);
-        });
+    $.post('handlerajax.php?serverlist=PodeComprar&Serverid=' + querystring[1] + '', function(response){
+        if(response)
+        {
+          //  alert("vai começar");
+            $("#CriarCartaoBtn").prop("disabled", false);
+        }
+        else
+        {
+            $("#CriarCartaoBtn").prop("disabled", true);
+        }
     });
-}, 10 * 100);
+}
 
 /*Bingo */
 function CriarCartaoBingo()
@@ -31,14 +76,15 @@ function InstatiateCartao()
 {
     //Criar o cartao
     contadorCartoes++;
-    $( "#divTotal" ).append( "<div id='Divcartao" + contadorCartoes + "'></div> <br>");
-    $("#Divcartao" + contadorCartoes ).append('<table class="topazCells"><tbody><tr>');
+    var idpessoa = sessionStorage.getItem("idpessoa");
+    $( "#divTotal" ).append( "<div id='Divcartao" + contadorCartoes  + "_" + idpessoa + "'></div> <br>");
+    $("#Divcartao" + contadorCartoes  + "_" + idpessoa ).append('<table class="topazCells"><tbody><tr>');
     for (let index = 1; index < 28; index++) {
         if(index == 10 || index == 19 || index == 30)
         {
-            $("#Divcartao" + contadorCartoes + " > table > tbody").prepend("<tr>");
+            $("#Divcartao" + contadorCartoes  + "_" + idpessoa + " > table > tbody").prepend("<tr>");
         }
-        $("#Divcartao" + contadorCartoes + " > table > tbody > tr").first().append("<td><label id='Label" + index +"_" + contadorCartoes + "'>-</label></td>");
+        $("#Divcartao" + contadorCartoes  + "_" + idpessoa + " > table > tbody > tr").first().append("<td><label id='Label" + index +"_" + contadorCartoes + "'>-</label></td>");
 
     }
 
@@ -194,12 +240,12 @@ function InstatiateCartao()
     
     /* Guardar o cartao na base de dados */
     var NumerosDoCartao = "";
-    $("#Divcartao" + contadorCartoes + " > table > tbody > tr > td > label").each(function (index, element) {
+    $("#Divcartao" + contadorCartoes + "_" + idpessoa +" > table > tbody > tr > td > label").each(function (index, element) {
         NumerosDoCartao = NumerosDoCartao.concat($(element).text() + "_");
     });
     var querystring = location.search.substring(1);
     querystring = querystring.split("=");
-    $.post('handlerajax.php?serverlist=GuardarCartao&Numeros='+NumerosDoCartao+'&Serverid=' + querystring[1] + '', function(response){
+    $.post('handlerajax.php?serverlist=GuardarCartao&Numeros='+NumerosDoCartao+'&Serverid=' + querystring[1] + '&idpessoa=' + sessionStorage.getItem("idpessoa") + '', function(response){
     });
 }
 
@@ -258,7 +304,19 @@ function VerifyWinner()
     $("#divTotal > div").each(function (index, element) {
         if(EVencedor(element) == 0)
         {
-            alert("Ganhou a div " + element.id);
+          //  alert("Ganhou a div " + element.id);
+
+            var querystring = location.search.substring(1);
+            querystring = querystring.split("=");
+
+            var idpessoa = element.id.split("_");
+            $.post('handlerajax.php?serverlist=Vencedor&QuemGanhou='+idpessoa[1]+'&Serverid=' + querystring[1] + '', function(response){
+            });    
+
+            $.post('handlerajax.php?serverlist=TemqueFazerRefresh&Serverid=' + querystring[1] + '&idpessoa=' + sessionStorage.getItem("idpessoa") + '', function(response){
+                location.reload();
+            });
+
         }
     });
 }
@@ -273,20 +331,27 @@ function EVencedor(element) {
     return contador;
 }
 
-function Cartoesexistentes(value)
+function Cartoesexistentes(value, idpessoa)
 {
     var arrayvalue = value.split("_");
 
     //Criar o cartao
     contadorCartoes++;
-    $( "#divTotal" ).append( "<div id='Divcartao" + contadorCartoes + "'></div> <br>");
-    $("#Divcartao" + contadorCartoes ).append('<table class="topazCells"><tbody><tr>');
+    if(idpessoa == sessionStorage.getItem("idpessoa"))
+    {
+        $( "#divTotal" ).append( "<div id='Divcartao" + contadorCartoes + "_" + idpessoa + "'></div> <br>");
+    }
+    else
+    {
+        $( "#divTotal" ).append( "<div id='Divcartao" + contadorCartoes + "_" + idpessoa + "' style='float: right;'></div> <br>");
+    }
+    $("#Divcartao" + contadorCartoes + "_" + idpessoa ).append('<table class="topazCells"><tbody><tr>');
     for (let index = 1; index < 28; index++) {
         if(index == 10 || index == 19 || index == 30)
         {
-            $("#Divcartao" + contadorCartoes + " > table > tbody").prepend("<tr>");
+            $("#Divcartao" + contadorCartoes + "_" + idpessoa + " > table > tbody").prepend("<tr>");
         }
-        $("#Divcartao" + contadorCartoes + " > table > tbody > tr").first().append("<td><label id='Label" + index +"_" + contadorCartoes + "'>" + arrayvalue[index-1] + "</label></td>");
+        $("#Divcartao" + contadorCartoes + "_" + idpessoa + " > table > tbody > tr").first().append("<td><label id='Label" + index +"_" + contadorCartoes + "'>" + arrayvalue[index-1] + "</label></td>");
     }
 }
 /*Fim Bingo*/

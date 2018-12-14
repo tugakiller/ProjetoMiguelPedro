@@ -13,25 +13,16 @@
     <link rel="stylesheet" href="Css.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
-<body onload="PodeComprar();">
-    <button class="btn btn-primary" id="CriarCartaoBtn" onclick="CriarCartaoBingo()" disabled>Criar Cartão Bingo</button>
-    <div id="divTotal"></div>
-    <div id="divNumerosSaidos"></div>
-    <?php 
-    include("Db.php");
-    $data = $_SERVER['QUERY_STRING'];
-    $whatIWant = substr($data, strpos($data, "=") + 1);
-
-    $query = QueryCreator("SELECT * FROM bingo WHERE id_servidor = " . $whatIWant . "", $con);
-
-    if ($query->num_rows > 0) {
-            // output data of each row
-        while ($row = $query->fetch_assoc()) {
-            echo '<script type="text/javascript">',
-                'Cartoesexistentes("' . $row["Numeros"] . '", "' . $row["idpessoa"] .'");',
-                '</script>';
-        }
+<body>
+    <button class="btn btn-primary" onclick="Login(1)">Miguel</button>
+    <button class="btn btn-primary" onclick="Login(2)">Luis</button>
+    
+    <script>
+    function Login(id)
+    {
+        sessionStorage.setItem('idpessoa', id);
+        location.replace("server_listhtml.php");
     }
-    ?>
+    </script>
 </body>
 </html>

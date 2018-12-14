@@ -32,8 +32,8 @@
     ?>  
 
     <script>
-        function AjaxServerList(Link, id) {
-            $.post('handlerajax.php?serverlist=Insertid&id='+id+'', function(response){});
+        function AjaxServerList(Link, id) {        
+            $.post('handlerajax.php?serverlist=Insertid&id='+id+'&idpessoa=' + sessionStorage.getItem("idpessoa") + '', function(response){});
             window.location = Link;
         }
     </script>    
