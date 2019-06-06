@@ -100,13 +100,12 @@ if (isset($_REQUEST['serverlist'])) {
                 // output data of each row
                 while ($row = $query->fetch_assoc()) {
                     echo $row["fazerrefresh"];
-                    if($row["fazerrefresh"] == '1')
-                    {
-                        $query = QueryCreator("UPDATE pessoa SET fazerrefresh = 0 WHERE id = " . $_REQUEST['idpessoa'] . "", $con);
-                    }
                 }
             }
         break; 
+        case "removerrefresh":
+            $query = QueryCreator("UPDATE pessoa SET fazerrefresh = 0 WHERE id = " . $_REQUEST['idpessoa'] . "", $con);
+        break;    
     }
 }
 ?>

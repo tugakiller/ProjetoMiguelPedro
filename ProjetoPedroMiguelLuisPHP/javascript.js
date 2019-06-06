@@ -22,6 +22,8 @@ setInterval(function() {
     $.post('handlerajax.php?serverlist=FazerRefresh&idpessoa=' + sessionStorage.getItem("idpessoa") + '', function(response){
         if(response == '1')
         {
+            $.post('handlerajax.php?serverlist=removerrefresh&idpessoa=' + sessionStorage.getItem("idpessoa") + '', function(response){
+            });
             location.reload();
         }
     });
@@ -314,7 +316,7 @@ function VerifyWinner()
             });    
 
             $.post('handlerajax.php?serverlist=TemqueFazerRefresh&Serverid=' + querystring[1] + '&idpessoa=' + sessionStorage.getItem("idpessoa") + '', function(response){
-                location.reload();
+                location.reload();           
             });
 
         }
